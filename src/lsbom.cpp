@@ -264,11 +264,15 @@ int main(int argc, char *argv[]) {
       uint32_t varDataLength;
       char *varData = lookup(var->index, &varDataLength);
       BOMTree *tree = (BOMTree *)varData;
-      string name = string(var->name, var->length);
+      // Some BOMs include a trailing zero and account for it in length (e.g. iOS build 15G77)
+      size_t varNameLen = var->length;
+      while (varNameLen > 0 && var->name[varNameLen-1] == '\0')
+        --varNameLen;
+      string name = string(var->name, varNameLen);
 
       DEBUG(2, "BOMVar 0x" << hex << ntohl(var->index) << ' ' << name << ':');
 
-      if (strstr(name.c_str(),"Paths") == 0) {
+      if (name == "Paths") {
         BOMPaths *paths = (BOMPaths *)lookup(tree->child);
 
         typedef map<uint32_t, string> filenames_t;
