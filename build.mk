@@ -19,7 +19,7 @@
 #
 #  Initial work done by Joseph Coffland and Julian Devlin.
 #  Numerous further improvements by Baron Roberts.
-OPTFLAGS=-O2 -g0 -s
+OPTFLAGS=-O3 -g0 -s
 
 APP_SOURCES=\
 	mkbom.cpp \
@@ -31,7 +31,7 @@ COMMON_SOURCES=\
 	printnode.cpp \
 	crc32.cpp
 
-BUILD_DIR=build
+BUILD_DIR ?= build
 BUILD_BIN_DIR=$(BUILD_DIR)/bin
 BUILD_OBJ_DIR=$(BUILD_DIR)/obj
 BUILD_MAN_DIR=$(BUILD_DIR)/man

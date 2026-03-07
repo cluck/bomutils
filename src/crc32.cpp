@@ -43,9 +43,8 @@ using namespace std;
 
 uint32_t calc_crc32( const char * file_path ) {
 #if defined(WINDOWS)
-  OFSTRUCT ignore;
-  HFILE f = OpenFile( file_path, &ignore, OF_READ );
-  if ( f == HFILE_ERROR ) {
+  HANDLE f = CreateFile( file_path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, NULL);
+  if ( f == INVALID_HANDLE_VALUE ) {
 #else
   int f = open( file_path, O_RDONLY );
   if ( f < 0 ) {

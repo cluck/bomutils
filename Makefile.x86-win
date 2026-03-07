@@ -19,10 +19,14 @@
 #
 #  Initial work done by Joseph Coffland and Julian Devlin.
 #  Numerous further improvements by Baron Roberts.
+
+srcdir := $(dir $(lastword $(MAKEFILE_LIST)))
+
 SUFFIX=.exe
-CXX=i586-mingw32msvc-g++
+CXX=i686-w64-mingw32-g++-win32
 CXXFLAGS=-mwindows -mconsole -DWINDOWS -Wall
 LDFLAGS=-mwindows -mconsole -static-libgcc -static-libstdc++
 LIBS=-lws2_32
 
-include build.mk
+BUILD_DIR ?= build/win/x86
+include $(srcdir)/build.mk

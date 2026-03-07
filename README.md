@@ -12,12 +12,16 @@ _bomutils_ are a set of tools to create Mac OS X installer packages on foreign O
 
 Build Instructions
 ------------------
-1. On UNIX-like OSes, compile the code by executing: `make all`;\
-   on Mingw64 for Windows, use `make -f Makefile.win all` instead;\
-   there is no support for a native Windows build.
-2. Tools become available in the `build/bin` directory after the build.
-3. Install the tools by executing the install target on the same Makefile as a privileged user.
-   
+
+On UNIX-like OSes, compile the code by executing: `make all`;
+tools become available in the `build/unix/bin` directory. Install the tools by
+executing `make install` but running as a privileged user.
+
+For Windows binaries, use Mingw64 for cross-compilation: execute either
+`make -f Makefile.x64-win all` or `make -f Makefile.x86-win all` to
+build the tools, which will become available in the `build/win/x64` or
+`build/win/x86` directory. There is no install target or setup utility for
+Windows builds.
 
 Usage
 -----
