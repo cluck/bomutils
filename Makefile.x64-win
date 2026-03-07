@@ -20,13 +20,15 @@
 #  Initial work done by Joseph Coffland and Julian Devlin.
 #  Numerous further improvements by Baron Roberts.
 
-srcdir := $(dir $(lastword $(MAKEFILE_LIST)))
-
 SUFFIX=.exe
 CXX=x86_64-w64-mingw32-g++-win32
-CXXFLAGS=-mwindows -mconsole -DWINDOWS -Wall
-LDFLAGS=-mwindows -mconsole -static-libgcc -static-libstdc++
+CXXFLAGS=-mwindows -mconsole -DWINDOWS -Wall -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
+LDFLAGS=-mwindows -mconsole -static-libgcc -static-libstdc++ -pie
+
 LIBS=-lws2_32
 
 BUILD_DIR ?= build/win/x64
-include $(srcdir)/build.mk
+RELEASEZIP_NAME = Windows_64bit
+RELEASEZIP_ROOT = bin
+RELEASEZIP_CONTENT = .
+include build.mk

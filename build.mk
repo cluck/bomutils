@@ -19,7 +19,8 @@
 #
 #  Initial work done by Joseph Coffland and Julian Devlin.
 #  Numerous further improvements by Baron Roberts.
-OPTFLAGS=-O3 -g0 -s
+
+OPTFLAGS += -O3 -g0 -s
 
 APP_SOURCES=\
 	mkbom.cpp \
@@ -35,6 +36,10 @@ BUILD_DIR ?= build
 BUILD_BIN_DIR=$(BUILD_DIR)/bin
 BUILD_OBJ_DIR=$(BUILD_DIR)/obj
 BUILD_MAN_DIR=$(BUILD_DIR)/man
+
+RELEASEZIP_DIR ?= build/release
+RELEASEZIP_ROOT ?= .
+RELEASEZIP_CONTENT ?= bin man
 
 DOCKER_IMAGE_NAME=bomutils
 
@@ -92,3 +97,17 @@ clean :
 
 docker-image :
 	docker build -t bomutils .
+
+docker-extract :
+	mkdir -p "$(BUILD_DIR)/docker"
+	CID=$$(docker create --annotation=bomutils=build bomutils cat) ; \
+	docker export --output $(BUILD_DIR)/docker/rootfs.tar $$CID ; \
+	docker container rm $$CID
+	tar -C "$(BUILD_DIR)" -xf "$(BUILD_DIR)/docker/rootfs.tar" --strip-components=1 usr/bin usr/man
+
+release :
+	mkdir -p "$(RELEASEZIP_DIR)"
+	rm -f "$(RELEASEZIP_DIR)/$(RELEASEZIP_NAME).zip"
+	cd "$(BUILD_DIR)/$(RELEASEZIP_ROOT)" ; zip -r "$(abspath $(RELEASEZIP_DIR))/$(RELEASEZIP_NAME).zip" $(RELEASEZIP_CONTENT)
+.PHONY: release
+

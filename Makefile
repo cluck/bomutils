@@ -20,18 +20,22 @@
 #  Initial work done by Joseph Coffland and Julian Devlin.
 #  Numerous further improvements by Baron Roberts.
 
-srcdir := $(dir $(lastword $(MAKEFILE_LIST)))
-
 CXX=g++
 PREFIX=/usr
-
 SUFFIX=
-CXXFLAGS=-ffile-prefix-map="$(srcdir:/=)=./src/bomutils" -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
-LDFLAGS=-pie -Wl,-z,now,-z,relro
+
+# These can be overridden with `CXXFLAGS="-something" LDFLAGS="" make target' ...
+CXXFLAGS ?= -ffile-prefix-map=".=./src/bomutils"
+LDFLAGS  ?= -pie
+# ... while these will be appended anyway (to also override these use `make target CXXFLAGS=""')
+CXXFLAGS := $(CXXFLAGS) -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
+LDFLAGS  := $(LDFLAGS) -Wl,-z,now,-z,relro
+
 LIBS=
 
 BIN_DIR=$(PREFIX)/bin
 MAN_DIR=$(PREFIX)/share/man
 
 BUILD_DIR ?= build/unix
-include $(srcdir)/build.mk
+RELEASEZIP_NAME = $(shell uname -sm | tr ' ' _)
+include build.mk
