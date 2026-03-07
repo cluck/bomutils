@@ -265,7 +265,7 @@ int main(int argc, char *argv[]) {
       char *varData = lookup(var->index, &varDataLength);
       BOMTree *tree = (BOMTree *)varData;
       // Some BOMs include a trailing zero and account for it in length (e.g. iOS build 15G77)
-      size_t varNameLen = var->length;
+      uint8_t varNameLen = var->length;
       while (varNameLen > 0 && var->name[varNameLen-1] == '\0')
         --varNameLen;
       string name = string(var->name, varNameLen);

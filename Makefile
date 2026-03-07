@@ -19,11 +19,14 @@
 #
 #  Initial work done by Joseph Coffland and Julian Devlin.
 #  Numerous further improvements by Baron Roberts.
+
+srcdir := $(dir $(lastword $(MAKEFILE_LIST)))
+
 CXX=g++
 PREFIX=/usr
 
 SUFFIX=
-CXXFLAGS=-g -O3 -ffile-prefix-map=/home/lbr/code/bomutils=. -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
+CXXFLAGS=-g -O3 -ffile-prefix-map="$(srcdir:/=)=./src/bomutils" -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
 LDFLAGS=-pie -Wl,-z,now,-z,relro
 LIBS=
 
