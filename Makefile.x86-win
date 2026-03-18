@@ -22,6 +22,7 @@
 
 SUFFIX=.exe
 CXX=i686-w64-mingw32-g++-win32
+STRIP=i686-w64-mingw32-strip
 CXXFLAGS=-mwindows -mconsole -DWINDOWS -Wall -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
 LDFLAGS=-mwindows -mconsole -static-libgcc -static-libstdc++ -pie
 
