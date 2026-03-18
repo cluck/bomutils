@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_run:
+    workflows: [Build]
+    types:
+      - completed
+
+# Make sure the GITHUB_TOKEN has permission to upload to our releases
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: '📦 Publish packages'
+        run: |
+          cd ${{github.workspace}}
+          env -C build/linux        zip -r    ../ubuntu-amd64.zip       bin/ man/
+          env -C build/linux/static zip -r ../../linux-static-amd64.zip bin/ man/
+          env -C build/macos        zip -r ../macos-arm64.zip           bin/ man/
+          env -C build/win/x64      zip -r ../../win32-x86_64.zip       bin/
+          env -C build/win/x86      zip -r ../../win32-x86.zip          bin/
+          gh release upload ${{github.event.release.tag_name}} build/ubuntu-amd64.zip
+          gh release upload ${{github.event.release.tag_name}} build/linux-static-amd64.zip
+          gh release upload ${{github.event.release.tag_name}} build/macos-arm64.zip
+          gh release upload ${{github.event.release.tag_name}} build/win32-x86_64.zip
+          gh release upload ${{github.event.release.tag_name}} build/win32-x86.zip
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        shell: bash
+
