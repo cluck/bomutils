@@ -29,8 +29,8 @@ define check_flag
   $(shell echo 'int main() { return 0; }' | $(CXX) $(1) -xc - 2>/dev/null && echo $(1))
 endef
 
-DESIRABLE_LDFLAGS  ?= -Wl,-z,now -Wl,-z,relro
-DESIRABLE_CXXFLAGS ?= -fstack-protector-all -Wformat -Werror=format-security -s
+DESIRABLE_LDFLAGS  ?= -Wl,-z,now -Wl,-z,relro $(TRY_LDFLAGS)
+DESIRABLE_CXXFLAGS ?= -fstack-protector-all -Wformat -Werror=format-security -s $(TRY_LDFLAGS)
 
 SUPPORTED_LDFLAGS  += $(foreach flag,$(DESIRABLE_LDFLAGS),$(call check_flag,$(flag)))
 SUPPORTED_CXXFLAGS += $(foreach flag,$(DESIRABLE_CXXFLAGS),$(call check_flag,$(flag)))

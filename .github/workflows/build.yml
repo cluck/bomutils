@@ -48,8 +48,18 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v6
 
-      - name: Build on Linux x86_64
+      - name: Build on Linux x86_64 (dynamic)
         run:  make all
+        env:
+              BUILD_DIR: build/linux
+
+      - name: Build on Linux x86_64 (static)
+        run:  make all
+        env:
+              LDFLAGS: -static
+              CXXFLAGS: -fPIC
+              TRY_CXXFLAGS: -ffile-prefix-map=".=./src/bomutils"
+              BUILD_DIR: build/linux/static
 
       - name: Build on Windows x86_64 (64-bit)
         run:  make -f Makefile.x64-win all
@@ -62,8 +72,9 @@ jobs:
         with:
           name: binaries-linux-x64
           path: |
-            build/unix/**/*
-            !build/unix/obj/*
+            build/linux/**/*
+            !build/linux/static/obj/*
+            !build/linux/obj/*
 
       - name: Archive Windows 64-bit artifacts
         uses: actions/upload-artifact@v6
