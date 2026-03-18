@@ -1,10 +1,8 @@
-name: Release
+name: release
 
 on:
-  release:
-    types: [published]
   workflow_run:
-    workflows: [Build]
+    workflows: ["build"]
     types:
       - completed
 
@@ -13,24 +11,39 @@ permissions:
   contents: write
 
 jobs:
-  release:
+
+  assets:
     runs-on: ubuntu-latest
+    #if: ${{ (github.event.workflow_run.conclusion == 'success') && (github.event.release.tag_name != '') }}
+    if: ${{ (github.event.workflow_run.conclusion == 'success') }}
 
     steps:
 
+      - name: Download artifacts
+        uses: actions/download-artifact@v6
+        with:
+          pattern: binaries-*
+          path: artifacts/
+          # run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: '📦 Publish packages'
+        # if:  ${{ startsWith(github.event.release.tag_name, 'rel-') }}
         run: |
           cd ${{github.workspace}}
-          env -C build/linux        zip -r    ../ubuntu-amd64.zip       bin/ man/
-          env -C build/linux/static zip -r ../../linux-static-amd64.zip bin/ man/
-          env -C build/macos        zip -r ../macos-arm64.zip           bin/ man/
-          env -C build/win/x64      zip -r ../../win32-x86_64.zip       bin/
-          env -C build/win/x86      zip -r ../../win32-x86.zip          bin/
-          gh release upload ${{github.event.release.tag_name}} build/ubuntu-amd64.zip
-          gh release upload ${{github.event.release.tag_name}} build/linux-static-amd64.zip
-          gh release upload ${{github.event.release.tag_name}} build/macos-arm64.zip
-          gh release upload ${{github.event.release.tag_name}} build/win32-x86_64.zip
-          gh release upload ${{github.event.release.tag_name}} build/win32-x86.zip
+          mkdir -p build
+          find artifacts/ build/ -ls
+          env -C artifacts/binaries-linux-x64  zip -r ../../build/ubuntu-amd64.zip        bin/ man/
+          env -C artifacts/binaries-macos      zip -r ../../build/macos-arm64.zip         bin/ man/
+          env -C artifacts/binaries-linux-x64  zip -r ../../build/linux-static-amd64.zip  bin/ man/
+          env -C artifacts/binaries-win-x64    zip -r ../../build/win32-x64.zip           bin/
+          env -C artifacts/binaries-win-x86    zip -r ../../build/win32-x86.zip           bin/
+          [ -n "${{github.event.release.tag_name}}" ] && refname="${{github.event.release.tag_name}}" || refname="${{github.ref_name}}"
+          gh release upload "$refname" build/ubuntu-amd64.zip
+          gh release upload "$refname" build/linux-static-amd64.zip
+          gh release upload "$refname" build/macos-arm64.zip
+          gh release upload "$refname" build/win32-x64.zip
+          gh release upload "$refname" build/win32-x86.zip
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
         shell: bash
