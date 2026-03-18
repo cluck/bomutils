@@ -58,6 +58,14 @@ vpath %.1 man
 .PHONY: $(APP_NAMES) all install clean dist
 .PRECIOUS: $(BUILD_OBJ_DIR)/%.o $(BUILD_OBJ_DIR)/%.d
 
+STRIP ?= strip
+binutils_strip = $(shell $(STRIP) --help | grep -m1 -- --strip-unneeded | wc -l)
+ifeq ($(binutils_strip),1)
+STRIP_COMMAND = $(STRIP) --strip-unneeded
+else
+STRIP_COMMAND = $(STRIP)
+endif
+
 all : $(APPS) $(MAN)
 
 install : all
@@ -78,7 +86,7 @@ $(BUILD_OBJ_DIR)/%.d : %.cpp
 $(BUILD_BIN_DIR)/%$(SUFFIX) : $(BUILD_OBJ_DIR)/%.o $(COMMON_OBJECTS)
 	@mkdir -p $(BUILD_BIN_DIR)
 	$(CXX) -o $@ $(LDFLAGS) $^ $(LIBS)
-	@strip --strip-unneeded $@
+	$(STRIP_COMMAND) $@
 
 $(BUILD_MAN_DIR)/%.1.gz : %.1
 	@mkdir -p $(BUILD_MAN_DIR)

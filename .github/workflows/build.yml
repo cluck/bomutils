@@ -1,0 +1,84 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - next
+      - 'feat/**'
+  pull_request:
+    branches:
+      - main
+      - next
+      - 'feat/**'
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Build on macOS
+        run: make all
+        env:
+              BUILD_DIR: build/macos
+
+      - name: Archive macOS artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: binaries-macos
+          path: |
+            build/macos/**/*
+            !build/macos/obj/*
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      
+      - name: Install MinGW
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64
+          sudo apt-get install -y --no-install-recommends g++-mingw-w64-i686   binutils-mingw-w64-i686
+
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Build on Linux x86_64
+        run:  make all
+
+      - name: Build on Windows x86_64 (64-bit)
+        run:  make -f Makefile.x64-win all
+
+      - name: Build on Windows x86 (32-bit)
+        run:  make -f Makefile.x86-win all
+      
+      - name: Archive Linux amd64 artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: binaries-linux-x64
+          path: |
+            build/unix/**/*
+            !build/unix/obj/*
+
+      - name: Archive Windows 64-bit artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: binaries-win-x64
+          path: |
+            build/win/x64/*
+            !build/win/x64/obj/*
+
+      - name: Archive Windows 32-bit artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: binaries-win-x86
+          path: |
+            build/win/x86/*
+            !build/win/x86/obj/*
+
+

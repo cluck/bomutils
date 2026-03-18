@@ -21,15 +21,26 @@
 #  Numerous further improvements by Baron Roberts.
 
 CXX=g++
+STRIP=strip
 PREFIX=/usr
 SUFFIX=
+
+define check_flag
+  $(shell echo 'int main() { return 0; }' | $(CXX) $(1) -xc - 2>/dev/null && echo $(1))
+endef
+
+DESIRABLE_LDFLAGS  ?= -Wl,-z,now -Wl,-z,relro
+DESIRABLE_CXXFLAGS ?= -fstack-protector-all -Wformat -Werror=format-security -s
+
+SUPPORTED_LDFLAGS  += $(foreach flag,$(DESIRABLE_LDFLAGS),$(call check_flag,$(flag)))
+SUPPORTED_CXXFLAGS += $(foreach flag,$(DESIRABLE_CXXFLAGS),$(call check_flag,$(flag)))
 
 # These can be overridden with `CXXFLAGS="-something" LDFLAGS="" make target' ...
 CXXFLAGS ?= -ffile-prefix-map=".=./src/bomutils"
 LDFLAGS  ?= -pie
 # ... while these will be appended anyway (to also override these use `make target CXXFLAGS=""')
-CXXFLAGS := $(CXXFLAGS) -fstack-protector-all -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -s
-LDFLAGS  := $(LDFLAGS) -Wl,-z,now,-z,relro
+CXXFLAGS := $(CXXFLAGS) -D_FORTIFY_SOURCE=2 $(SUPPORTED_CXXFLAGS)
+LDFLAGS  := $(LDFLAGS) $(SUPPORTED_LDFLAGS)
 
 LIBS=
 
